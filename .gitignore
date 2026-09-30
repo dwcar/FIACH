@@ -1,0 +1,10 @@
+work/
+*.asv
+*.m~
+.DS_Store
+Thumbs.db
+slprj/
+codegen/
+tests/fiach_matlab_sample_validation/*.nii
+tests/fiach_matlab_sample_validation/*.txt
+tests/fiach_matlab_sample_validation_fiach_diagnostics/

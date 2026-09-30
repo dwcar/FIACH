@@ -1,0 +1,2 @@
+% Data Changed	Peak TSNR
+0.592679736755	58.4821133112
