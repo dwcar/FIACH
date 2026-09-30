@@ -39,6 +39,11 @@ result = fiach(functionalFiles, t, 1.25, ...
     'GMMMethod', 'R');
 ```
 
+`fiach_bold_contrast` also offers `Typical`, `Conservative` (the default and
+upstream R settings), and `AlternativeTypical` physiology profiles. Their
+assumptions, literature basis, and the limits of the packaged test data are
+documented in [BOLD contrast parameters](docs/BOLD_CONTRAST_PARAMETERS.md).
+
 By default, existing derivatives are not replaced. Add `'Overwrite', true`
 only when replacement is intended.
 
