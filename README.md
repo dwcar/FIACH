@@ -82,6 +82,19 @@ voxel-array index and report the header discrepancy.
 - `fiach_processing_steps_viewer`: original, FIACH-filtered/interpolated, and
   motion-plus-FIACH nuisance-GLM stages with three linked voxel traces.
 
+For a new dataset, set MATLAB's current folder to the FIACH run folder and call
+`fiach_processing_steps_viewer`. It uses that folder when it finds
+`filt_*.nii`; otherwise it opens a folder picker. For scripts or batch jobs,
+pass the folder explicitly:
+
+```matlab
+result = fiach_processing_steps_viewer('RunFolder', runFolder);
+```
+
+The run folder should contain the original and `filt_*.nii` volumes, the
+realignment `rp_*.txt`, and `noise_basis6.txt`. By default the mask is read
+from the adjacent `<runFolder>_fiach_diagnostics` folder.
+
 ## Repository layout
 
 ```text

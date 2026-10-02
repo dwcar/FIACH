@@ -1,8 +1,9 @@
 function result = fiach_processing_steps_viewer(varargin)
 %FIACH_PROCESSING_STEPS_VIEWER Inspect original, FIACH, and nuisance-GLM data.
 %
-%   RESULT = FIACH_PROCESSING_STEPS_VIEWER() uses the completed overt_0209
-%   ModifiedICH run. It projects each in-mask voxel's interpolated FIACH
+%   RESULT = FIACH_PROCESSING_STEPS_VIEWER() uses the current MATLAB folder
+%   when it contains FIACH filt_*.nii outputs; otherwise it prompts for the
+%   run folder. It projects each in-mask voxel's interpolated FIACH
 %   timecourse away from the motion-plus-FIACH nuisance subspace, writes
 %   float32 glm_filt_*.nii volumes, and opens a synchronized three-panel
 %   movie viewer.
@@ -17,7 +18,8 @@ function result = fiach_processing_steps_viewer(varargin)
 %   model while retaining each voxel's temporal mean.
 %
 %   Name-value options:
-%     'RunFolder'       input/output FIACH run directory
+%     'RunFolder'       input/output FIACH run directory (default: current
+%                       folder when it contains filt_*.nii; otherwise select)
 %     'Diagnostics'     directory containing mask.nii
 %     'MotionFile'      six-column realignment parameter file
 %     'RegressorFile'   FIACH noise_basis6.txt
@@ -26,12 +28,9 @@ function result = fiach_processing_steps_viewer(varargin)
 %     'OpenViewer'      open the synchronized viewer (true)
 %     'FrameRate'       movie playback frames per second (4)
 
-    thisFolder = fileparts(mfilename('fullpath'));
-    repositoryRoot = fileparts(thisFolder);
-    defaultRunFolder = fullfile(repositoryRoot, 'work', 'overt_0209_ich');
     parser = inputParser;
     parser.FunctionName = mfilename;
-    addParameter(parser, 'RunFolder', defaultRunFolder, @isTextScalar);
+    addParameter(parser, 'RunFolder', '', @isTextScalar);
     addParameter(parser, 'Diagnostics', '', @isTextScalar);
     addParameter(parser, 'MotionFile', '', @isTextScalar);
     addParameter(parser, 'RegressorFile', '', @isTextScalar);
@@ -45,6 +44,22 @@ function result = fiach_processing_steps_viewer(varargin)
     textFields = {'RunFolder', 'Diagnostics', 'MotionFile', 'RegressorFile', 'OutputFolder'};
     for index = 1:numel(textFields)
         opts.(textFields{index}) = char(opts.(textFields{index}));
+    end
+    if isempty(opts.RunFolder)
+        if hasFilteredSeries(pwd)
+            opts.RunFolder = pwd;
+        elseif usejava('desktop')
+            selectedFolder = uigetdir(pwd, 'Select the FIACH run folder');
+            if isequal(selectedFolder, 0)
+                error('fiach_processing_steps_viewer:FolderSelectionCancelled', ...
+                    'No run folder selected. Re-run with ''RunFolder'', folderPath.');
+            end
+            opts.RunFolder = selectedFolder;
+        else
+            error('fiach_processing_steps_viewer:RunFolderRequired', ...
+                ['The current folder contains no filt_*.nii files. In non-GUI ' ...
+                 'sessions, specify ''RunFolder'', folderPath.']);
+        end
     end
     if isempty(opts.Diagnostics)
         opts.Diagnostics = [opts.RunFolder '_fiach_diagnostics'];
@@ -128,6 +143,12 @@ end
 
 function tf = isTextScalar(value)
     tf = ischar(value) || (isstring(value) && isscalar(value));
+end
+
+
+function tf = hasFilteredSeries(folder)
+    listing = dir(fullfile(folder, 'filt_*.nii'));
+    tf = ~isempty(listing);
 end
 
 
